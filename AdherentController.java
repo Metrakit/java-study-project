@@ -100,12 +100,18 @@ public class AdherentController {
 			this.listAdherents();
 			return true;
 		} else if (key.equals("A")) {
-			this.processAdAdherent();
+			Adherent ad = this.saveAdherent(true, 0);
+			if (ad != null) {
+				System.out.println(ad.read());
+			} else {
+				System.out.println("Un problème est survenu lors de la sauvegarde de l'adhérent !");
+			}
 			return true;
 		} else if (key.equals("M")) {
-			System.out.println("Tentative de msie à jour d'un adhérent");			
-			LocalDate date = LocalDate.parse("January 1, 2015", this.formatter);
-			this.updateAdherent(1, "hhhhh", "dsqqq", "ddvv", "05606078", "ddd", date, 99, date);
+			System.out.println("Tentative de msie à jour d'un adhérent");
+			System.out.println("Renseignez l'id d'un adhérent : ");
+			String adId = this.sc.nextLine();
+			this.saveAdherent(false, Integer.parseInt(adId));
 			return true;
 		} else if (key.equals("V")) {
 			System.out.println("Recherche d'un adhérent :");
@@ -121,9 +127,12 @@ public class AdherentController {
 		}
 	}
 	
-	public boolean processAdAdherent()
+	public Adherent saveAdherent(boolean newAd, int adId)
 	{
-		
+		if (newAd == false && this.findAdherent(adId) == null) {
+			System.out.println("Adhérent inconnu au bataillon!");
+			return null;
+		}
 		
 		System.out.println("==== Renseiger les informations pour ajouter un adhérent ====");
 		
@@ -161,9 +170,26 @@ public class AdherentController {
 		String dateCotisationAd = this.sc.nextLine();				
 		LocalDate dateCoti = LocalDate.parse(dateCotisationAd, this.formatter);
 		
-		this.addAdherent(this.setId(), nomAd, prenomAd, adresseAd, codePostal, villeAd, dateNais, cotisationAd, dateCoti);
+		if (newAd) {
+			Adherent ad = this.addAdherent(this.setId(), nomAd, prenomAd, adresseAd, codePostal, villeAd, dateNais, cotisationAd, dateCoti);
+			System.out.println("L'adhérent a été ajouté avec succès !");
+			if (ad != null) {
+				System.out.println("L'adhérent a été modifié avec succès !");
+				return ad;
+			} else {
+				return null;
+			}			
+		} else {
+			Adherent ad = this.updateAdherent(adId, nomAd, prenomAd, adresseAd, codePostal, villeAd, dateNais, cotisationAd, dateCoti);
+			if (ad != null) {
+				System.out.println("L'adhérent a été modifié avec succès !");
+				return ad;
+			} else {
+				return null;
+			}
+			
+		}
 		
-		return true;
 	}
 	
 	public int setId()
@@ -188,16 +214,16 @@ public class AdherentController {
 		return true;
 	}
 	
-	public boolean updateAdherent(int adherentId, String Pnom, String Pprenom, String Padresse, String PcodePostal, String Pville, LocalDate PdateNaissance, float Pcotisation, LocalDate PdateCotisation)
+	public Adherent updateAdherent(int adherentId, String Pnom, String Pprenom, String Padresse, String PcodePostal, String Pville, LocalDate PdateNaissance, float Pcotisation, LocalDate PdateCotisation)
 	{
 		Adherent ad = this.findAdherent(adherentId);
 		
 		if (ad != null) {
 			ad.update(Pnom, Pprenom, Padresse, PcodePostal, Pville, PdateNaissance, Pcotisation, PdateCotisation);
-			return true;
+			return ad;
 		}
 		
-		return false;
+		return null;
 	}
 	
 	/**
@@ -213,12 +239,12 @@ public class AdherentController {
 	 * @param PdateCotisation
 	 * @return
 	 */
-	public int addAdherent(int Pid, String Pnom, String Pprenom, String Padresse, String PcodePostal, String Pville, LocalDate date, float Pcotisation, LocalDate PdateCotisation)
+	public Adherent addAdherent(int Pid, String Pnom, String Pprenom, String Padresse, String PcodePostal, String Pville, LocalDate date, float Pcotisation, LocalDate PdateCotisation)
 	{
 		Adherent adherent = new Adherent();
 		adherent.create(Pid, Pnom, Pprenom, Padresse, PcodePostal, Pville, date, Pcotisation, PdateCotisation);
 		adherents.add(adherent);
-		return 1;
+		return adherent;
 	}
 	
 	/**
